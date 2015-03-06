@@ -39,12 +39,13 @@ def queryInvoker(query, outputFile, config):
     else:
         return 'mysql --user=root --password={} -e \"{}\" analytics > {}'.format(config["db-pass"], query, outputFile)
 
-if __name__ == '__main__':
+def run():
+    outputFiles = []
     if DEBUG:
         config = json.load(open('./config.json', 'rb'))
     else:
         config = {}
-    dimensionsOut = './dimension-{}.csv'.format(DIMENSION)
+    dimensionsOut = './data/dimension-{}.csv'.format(DIMENSION)
     dim_cmd = queryInvoker(DIMENSIONS_QUERY(), dimensionsOut, config)
     subprocess.call(dim_cmd, shell=True)
     f = open(dimensionsOut)
@@ -55,6 +56,14 @@ if __name__ == '__main__':
             row = None
         else:
             row = row[0].strip()
-        outputFile = '{}-dimension-{}-output.csv'.format(DIMENSION,row)
+        outputFile = './data/{}-dimension-{}-output.csv'.format(DIMENSION,row)
         dist_cmd = queryInvoker(QUERY(DIMENSION,row), outputFile, config)
         subprocess.call(dist_cmd, shell=True)
+        outputFiles.append(outputFile)
+    return outputFiles
+
+if __name__ == '__main__':
+    files = run()
+    print 'Output files ->'
+    print files
+    print 'Finished all processes'

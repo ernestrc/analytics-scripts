@@ -70,3 +70,5 @@ config.json
 
 # osx
 .DS_Store
+
+*.tar.gz
