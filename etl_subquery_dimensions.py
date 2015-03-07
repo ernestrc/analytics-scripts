@@ -15,11 +15,11 @@ import json
 #
 # If debug mode is set, you will need to provide a config.json to set the mysql password
 
-DIMENSION = 'sdk'
+DIMENSION = 'country'
 TABLE = 'LoopAppUserAgentIds'
 DEBUG = True
 
-def QUERY(dimension,value):
+def QUERY(dimension, value):
     return '''
         select ct, count(*) obs, {} as dimension from (
             select count(distinct connection_id) ct, {}, guid
@@ -39,13 +39,18 @@ def queryInvoker(query, outputFile, config):
     else:
         return 'mysql --user=root --password={} -e \"{}\" analytics > {}'.format(config["db-pass"], query, outputFile)
 
+def encodeDimension(dimension):
+    if dimension:
+        dimension = dimension.strip().replace(' ', '__')
+    return dimension
+
 def run():
     outputFiles = []
     if DEBUG:
         config = json.load(open('./config.json', 'rb'))
     else:
         config = {}
-    dimensionsOut = './data/dimension-{}.csv'.format(DIMENSION)
+    dimensionsOut = './data/dimensions-{}.csv'.format(DIMENSION)
     dim_cmd = queryInvoker(DIMENSIONS_QUERY(), dimensionsOut, config)
     subprocess.call(dim_cmd, shell=True)
     f = open(dimensionsOut)
@@ -55,8 +60,8 @@ def run():
         if not row:
             row = None
         else:
-            row = row[0].strip()
-        outputFile = './data/{}-dimension-{}-output.csv'.format(DIMENSION,row)
+            row = row[0]
+        outputFile = './data/{}-dimension-{}-output.csv'.format(DIMENSION, encodeDimension(row))
         dist_cmd = queryInvoker(QUERY(DIMENSION,row), outputFile, config)
         subprocess.call(dist_cmd, shell=True)
         outputFiles.append(outputFile)
