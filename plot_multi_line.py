@@ -5,10 +5,10 @@ import os
 DATA_FOLDER = './data'
 AXISX = 'ct'
 AXISY = 'perc'
-DIMENSION = 'country'
+DIMENSION = 'looptype'
 GROUP = 'dimension'
 TITLE = 'How does continued usage differ by {} from 2014-08-04 to 2015-03-04'.format(DIMENSION)
-YLABEL = '% Number of distinct guids'
+YLABEL = '% Number of distinct remote IPs'
 XLABEL = 'Number of connections'
 XLIMIT = 10
 
@@ -18,7 +18,7 @@ def plot_lines(df, axisx, axisy, group, title, yl, xl, lim):
         xlim(0, lim) + \
         ggtitle(title) + \
         ylab(yl) + \
-        xlab(xl)
+        xlab(xl) + scale_x_continuous(breaks=[1,2,3,4,5,6,7,8,9,10])
     return plot
 
 # Merges all csv files in the given folder into a single df
